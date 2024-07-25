@@ -37,7 +37,7 @@ fn main() {
 
         canvas.set_draw_color(Color::RGB(0,0,0));
         canvas.clear();
-        canvas = draw_axis(canvas,&WIDTH,&HEIGHT);
+        canvas = draw_axis(canvas,&WIDTH,&HEIGHT,2);
 
 
         canvas.present();
@@ -45,16 +45,28 @@ fn main() {
 
 }
 
-fn draw_axis (mut canvas:Canvas<Window>,width : &u32, height : &u32) -> Canvas<Window> {
+fn draw_axis (mut canvas:Canvas<Window>,width : &u32, height : &u32 ,line_width: u32) -> Canvas<Window> {
     canvas.set_draw_color(Color::RGB(40,40,40));
     let padding_vertical: u32 = width/10;
     let padding_upright : u32 = height/10;
 
-    let vertical :[u32;4] = [padding_vertical,height/2,width-padding_vertical,height/2];
-    let upright : [u32;4] = [width/2,padding_upright,width/2,height-padding_vertical];
+    let mut vertical :[u32;4] = [padding_vertical,height/2,width-padding_vertical,height/2];
+    let mut upright : [u32;4] = [width/2,padding_upright,width/2,height-padding_vertical];
 
-    canvas.draw_line(Point::new(vertical[0].try_into().unwrap(), vertical[1].try_into().unwrap()),Point::new(vertical[2].try_into().unwrap(), vertical[3].try_into().unwrap())).expect("draw line failed");
-    canvas.draw_line(Point::new(upright[0].try_into().unwrap(), upright[1].try_into().unwrap()),Point::new(upright[2].try_into().unwrap(), upright[3].try_into().unwrap())).expect("draw line failed");
+    vertical[1]-= line_width/2;
+    vertical[3]-= line_width/2;
+    upright[0]-= line_width/2;
+    upright[2]-= line_width/2;
+
+    for _ in 0..line_width{
+        vertical[1] += 1;
+        vertical[3] += 1;
+        upright[0] +=1;
+        upright[2] += 1;
+        canvas.draw_line(Point::new(vertical[0].try_into().unwrap(), vertical[1].try_into().unwrap()),Point::new(vertical[2].try_into().unwrap(), vertical[3].try_into().unwrap())).expect("draw line failed");
+        canvas.draw_line(Point::new(upright[0].try_into().unwrap(), upright[1].try_into().unwrap()),Point::new(upright[2].try_into().unwrap(), upright[3].try_into().unwrap())).expect("draw line failed");
+    }
+
 
     return canvas;
 }
