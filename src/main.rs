@@ -1,6 +1,9 @@
+extern  crate sdl2;
 
 
-use sdl2::{self, event::Event, keyboard::Keycode, pixels::Color, rect::Point, render::Canvas, video::Window, EventPump, Sdl, VideoSubsystem};
+use std::{thread::sleep, time::{Duration, Instant}};
+
+use sdl2::{ event::Event, keyboard::Keycode, pixels::Color, rect::Point, video::Window, EventPump, Sdl, VideoSubsystem, render::Canvas};
 fn main() {
 
     let sld_context : Sdl = sdl2::init().unwrap();
@@ -18,6 +21,17 @@ fn main() {
     let mut canvas : Canvas<Window> = window.into_canvas().build().unwrap();
 
     let mut event_pump : EventPump = sld_context.event_pump().unwrap();
+    let mut next_time = Instant::now();
+
+    const INTERVAL : u64 = 10;
+
+    let change: Duration = std::time::Duration::from_secs(10);
+    let mut start : Instant = std::time::Instant::now(); 
+
+    let mut points : Vec<Point> =vec![];
+    let mut cur: i32= 0;
+    let mut i:f32 = 2.0 * std::f32::consts::PI;
+    let mut variation : f32 = 0.01;
 
     'running : loop {
         for event in event_pump.poll_iter(){
@@ -34,25 +48,49 @@ fn main() {
                 }
             }
         }
+        
+        if std::time::Instant::now() - start >=change{
+            if cur != 3{
+                cur+=1;
+            }
+            else {
+                cur = 0;
+            }
+            start = std::time::Instant::now();
+        }
+        
 
         canvas.set_draw_color(Color::RGB(0,0,0));
         canvas.clear();
         canvas = draw_axis(canvas,WIDTH,HEIGHT,2);
 
         canvas.set_draw_color(Color::RGB(255,255,255));
+
+        points.push(get_point((WIDTH/10).try_into().unwrap(), (HEIGHT/10).try_into().unwrap(), WIDTH.try_into().unwrap(), HEIGHT.try_into().unwrap(), cur, i));
+
+        if i <= 0.0{
+            variation = 0.01;
+        }
+        if i >= 2.0 * std::f32::consts::PI{
+            variation = -0.01;
+        }
         
-        let mut i : f32 = -2.0 * std::f32::consts::PI;
-        while i <= 2.0 * std::f32::consts::PI{
-            canvas.draw_point(Point::new((i*100.0) as i32,(i.sin()*100.0) as i32)).expect("draw point failed");
-            i+=0.01;
-        } 
+        i += variation;
+
+     
+        points = move_points(points, (WIDTH/10).try_into().unwrap(),1);
         
 
+        canvas = draw_points(canvas, &points);
+
+        sleep(next_time-Instant::now());
+        next_time+= Duration::from_millis(INTERVAL);
 
         canvas.present();
     }
 
 }
+
 
 fn draw_axis (mut canvas:Canvas<Window>,width : u32, height : u32 ,line_width: u32) -> Canvas<Window> {
     canvas.set_draw_color(Color::RGB(40,40,40));
@@ -78,7 +116,7 @@ fn draw_axis (mut canvas:Canvas<Window>,width : u32, height : u32 ,line_width: u
 
     canvas = draw_vertical_lines(canvas,padding_vertical.try_into().unwrap(),(width-padding_vertical).try_into().unwrap(), (line_width/2).try_into().unwrap(), height.try_into().unwrap());
     canvas = draw_upright_lines(canvas, padding_upright.try_into().unwrap(), (height-padding_upright).try_into().unwrap(), (line_width/2).try_into().unwrap(), width.try_into().unwrap());
-
+    
     return canvas;
 }
 
@@ -115,5 +153,61 @@ fn draw_upright_lines(mut canvas : Canvas<Window>,line_start : i32,line_end : i3
             }
         }
     return canvas
+}
+
+fn get_point (padding_vertical : i32 , padding_upright : i32 , width : i32,height : i32,cur:i32,i:f32) ->Point{
+
+    let lenght_vertical: f32 = (width - 2*padding_vertical) as f32;
+    let vertical_proportion: f32 = lenght_vertical / std::f32::consts::PI/4.0;
+    let lenght_upright : f32 = (height - 2 * padding_upright) as f32;
+    let upright_proportion : f32 = lenght_upright/ 4.0;
+    let mut point : Point = draw_sin( width, height, vertical_proportion, upright_proportion, i);
+
+        match cur {
+            0 => point = draw_sin( width, height, vertical_proportion, upright_proportion, i),
+            1 => point = draw_cos( width, height, vertical_proportion, upright_proportion, i),
+            2 => point = draw_tanges( width, height, vertical_proportion, upright_proportion, i),
+            3 => point = draw_cotanges( width, height, vertical_proportion, upright_proportion, i),
+            _ => {}
+        }
+      
+    return point;
+} 
+
+fn move_points(mut points:Vec<Point>,vertival_padding: i32,tempo:i32) -> Vec<Point>{
+    let mut cut: usize  = 0;
+    for i in 0..points.len(){
+        points[i] = points[i].offset(-tempo,0);
+        if points[i].x() <= vertival_padding{
+            cut = i;
+        }
+    }
+
+    points.drain(0..cut);
+
+    return points;
+}
+
+fn draw_points(mut canvas:Canvas<Window>,points:& Vec<Point>) -> Canvas<Window>{
+    for i in 0..points.len(){
+        canvas.draw_point(points[i]).expect("draw point failed");
+    }
+    return canvas;
+}
+
+fn draw_sin(width : i32,height : i32,vertical_proportion : f32,upright_proportion:f32 ,i:f32) -> Point{
+    return Point::new(width/2+ (i * vertical_proportion) as i32,height/2 + (i.sin()*upright_proportion) as i32 * -1);
+}
+
+fn draw_cos(width : i32,height : i32,vertical_proportion : f32,upright_proportion:f32 ,i:f32) -> Point{
+    return Point::new(width/2+ (i * vertical_proportion) as i32,height/2 + (i.cos()*upright_proportion) as i32 * -1);
+}
+
+fn draw_tanges(width : i32,height : i32,vertical_proportion : f32,upright_proportion:f32 ,i:f32) -> Point{
+    return Point::new(width/2+ (i * vertical_proportion) as i32,height/2 + (i.tan()*upright_proportion) as i32 * -1);
+}
+
+fn draw_cotanges(width : i32,height : i32,vertical_proportion : f32,upright_proportion:f32 ,i:f32) -> Point{
+    return Point::new(width/2+ (i * vertical_proportion) as i32,height/2 + ((i.cos()/i.sin())*upright_proportion) as i32 * -1);
 }
 
