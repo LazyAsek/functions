@@ -25,14 +25,20 @@ fn main() {
 
     const INTERVAL : u64 = 10;
 
+    /* 
     let change: Duration = std::time::Duration::from_secs(10);
     let mut start : Instant = std::time::Instant::now(); 
+    let mut cur: i32= 0;
+    */
 
     let mut points : Vec<Point> =vec![];
-    let mut cur: i32= 0;
     let mut i:f32 = 2.0 * std::f32::consts::PI;
     let mut variation : f32 = 0.01;
     let mut go: bool = false;
+    let mut sin : bool = false;
+    let mut cos : bool = false;
+    let mut tg : bool = false;
+    let mut ctg : bool = false;
 
     'running : loop {
         for event in event_pump.poll_iter(){
@@ -44,7 +50,44 @@ fn main() {
                     break 'running;
                 },
                 Event::KeyDown {keycode : Some(Keycode::Space)  , ..} =>{
-                    go = true;
+                    if go == true{
+                        go = false;
+                    }
+                    else{
+                        go = true;
+                    }
+                },
+                Event::KeyDown {keycode : Some(Keycode::S)  , ..} =>{
+                    if sin == true{
+                        sin = false;
+                    }
+                    else{
+                        sin = true
+                    }
+                },
+                Event::KeyDown {keycode : Some(Keycode::C)  , ..} =>{
+                    if cos == true{
+                        cos = false;
+                    }
+                    else{
+                        cos = true
+                    }
+                },
+                Event::KeyDown {keycode : Some(Keycode::T)  , ..} =>{
+                    if tg == true{
+                        tg = false;
+                    }
+                    else{
+                        tg = true
+                    }
+                },
+                Event::KeyDown {keycode : Some(Keycode::G)  , ..} =>{
+                    if ctg == true{
+                        ctg = false;
+                    }
+                    else{
+                        ctg = true
+                    }
                 },
     
                 _ => {
@@ -52,7 +95,7 @@ fn main() {
                 }
             }
         }
-        
+        /* change draw function
         if std::time::Instant::now() - start >=change{
             if cur != 3{
                 cur+=1;
@@ -62,6 +105,7 @@ fn main() {
             }
             start = std::time::Instant::now();
         }
+        */
         
 
         canvas.set_draw_color(Color::RGB(0,0,0));
@@ -70,8 +114,18 @@ fn main() {
 
         canvas.set_draw_color(Color::RGB(255,255,255));
         if go == true{
-            points.push(get_point((WIDTH/10).try_into().unwrap(), (HEIGHT/10).try_into().unwrap(), WIDTH.try_into().unwrap(), HEIGHT.try_into().unwrap(), cur, i));
-
+            if sin == true{
+                points.push(get_point((WIDTH/10).try_into().unwrap(), (HEIGHT/10).try_into().unwrap(), WIDTH.try_into().unwrap(), HEIGHT.try_into().unwrap(), 0, i));
+            }
+            if cos == true{
+                points.push(get_point((WIDTH/10).try_into().unwrap(), (HEIGHT/10).try_into().unwrap(), WIDTH.try_into().unwrap(), HEIGHT.try_into().unwrap(), 1, i));
+            }
+            if tg == true{
+                points.push(get_point((WIDTH/10).try_into().unwrap(), (HEIGHT/10).try_into().unwrap(), WIDTH.try_into().unwrap(), HEIGHT.try_into().unwrap(), 2, i));
+            }
+            if ctg == true{
+                points.push(get_point((WIDTH/10).try_into().unwrap(), (HEIGHT/10).try_into().unwrap(), WIDTH.try_into().unwrap(), HEIGHT.try_into().unwrap(), 3, i));
+            }
             if i <= 0.0{
                 variation = 0.01;
             }
