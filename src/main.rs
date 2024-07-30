@@ -32,6 +32,7 @@ fn main() {
     let mut cur: i32= 0;
     let mut i:f32 = 2.0 * std::f32::consts::PI;
     let mut variation : f32 = 0.01;
+    let mut go: bool = false;
 
     'running : loop {
         for event in event_pump.poll_iter(){
@@ -41,6 +42,9 @@ fn main() {
                 },
                 Event::KeyDown { keycode: Some(Keycode::Escape), .. } =>{
                     break 'running;
+                },
+                Event::KeyDown {keycode : Some(Keycode::Space)  , ..} =>{
+                    go = true;
                 },
     
                 _ => {
@@ -65,24 +69,24 @@ fn main() {
         canvas = draw_axis(canvas,WIDTH,HEIGHT,2);
 
         canvas.set_draw_color(Color::RGB(255,255,255));
+        if go == true{
+            points.push(get_point((WIDTH/10).try_into().unwrap(), (HEIGHT/10).try_into().unwrap(), WIDTH.try_into().unwrap(), HEIGHT.try_into().unwrap(), cur, i));
 
-        points.push(get_point((WIDTH/10).try_into().unwrap(), (HEIGHT/10).try_into().unwrap(), WIDTH.try_into().unwrap(), HEIGHT.try_into().unwrap(), cur, i));
+            if i <= 0.0{
+                variation = 0.01;
+            }
+            if i >= 2.0 * std::f32::consts::PI{
+                i=0.0;
+            }
+            
+            i += variation;
 
-        if i <= 0.0{
-            variation = 0.01;
-        }
-        if i >= 2.0 * std::f32::consts::PI{
-            i=0.0;
-        }
         
-        i += variation;
+            points = move_points(points, (WIDTH/10).try_into().unwrap(),1);
+            
 
-     
-        points = move_points(points, (WIDTH/10).try_into().unwrap(),1);
-        
-
-        canvas = draw_points(canvas, &points);
-
+            canvas = draw_points(canvas, &points);
+        }
         sleep(next_time-Instant::now());
         next_time+= Duration::from_millis(INTERVAL);
 
