@@ -72,7 +72,7 @@ fn main() {
             variation = 0.01;
         }
         if i >= 2.0 * std::f32::consts::PI{
-            variation = -0.01;
+            i=0.0;
         }
         
         i += variation;
@@ -196,18 +196,18 @@ fn draw_points(mut canvas:Canvas<Window>,points:& Vec<Point>) -> Canvas<Window>{
 }
 
 fn draw_sin(width : i32,height : i32,vertical_proportion : f32,upright_proportion:f32 ,i:f32) -> Point{
-    return Point::new(width/2+ (i * vertical_proportion) as i32,height/2 + (i.sin()*upright_proportion) as i32 * -1);
+    return Point::new(width/2+ (2.0 * std::f32::consts::PI * vertical_proportion) as i32,height/2 + (i.sin()*upright_proportion) as i32 * -1);
 }
 
 fn draw_cos(width : i32,height : i32,vertical_proportion : f32,upright_proportion:f32 ,i:f32) -> Point{
-    return Point::new(width/2+ (i * vertical_proportion) as i32,height/2 + (i.cos()*upright_proportion) as i32 * -1);
+    return Point::new(width/2+ (2.0 * std::f32::consts::PI * vertical_proportion) as i32,height/2 + (i.cos()*upright_proportion) as i32 * -1);
 }
 
 fn draw_tanges(width : i32,height : i32,vertical_proportion : f32,upright_proportion:f32 ,i:f32) -> Point{
-    return Point::new(width/2+ (i * vertical_proportion) as i32,height/2 + (i.tan()*upright_proportion) as i32 * -1);
+    return Point::new(width/2+ (2.0 * std::f32::consts::PI * vertical_proportion) as i32,height/2 + (i.tan()*upright_proportion) as i32 * -1);
 }
 
 fn draw_cotanges(width : i32,height : i32,vertical_proportion : f32,upright_proportion:f32 ,i:f32) -> Point{
-    return Point::new(width/2+ (i * vertical_proportion) as i32,height/2 + ((i.cos()/i.sin())*upright_proportion) as i32 * -1);
+    return Point::new(width/2+ (2.0 * std::f32::consts::PI * vertical_proportion) as i32,height/2 + ((i.cos()/i.sin())*upright_proportion) as i32 * -1);
 }
 
