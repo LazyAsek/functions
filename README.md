@@ -8,6 +8,7 @@ Actions:
 - press T to start drawing tanges
 - press G to start drawing cotanges
 
+In release folder is exe file
   TODO:
   show currently drawn functions somewhere
 
